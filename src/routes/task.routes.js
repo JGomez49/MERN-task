@@ -6,14 +6,49 @@ const router = express.Router();
 const Task_Model = require('../models/task');
 //Task_Model es el modelo de los datos en la DB
 
-Task_Model.find(function(err,tasks) {
-    console.log(tasks)
+//para consultar la DB:
+//Read (R)
+router.get('/', async(req,res)=>{
+    // res.send('Hola desde task.routes GET');
+    const tasks = await Task_Model.find();
+    // console.log(tasks);
+    // res.json('Respuestas desde router.get');
+    res.json(tasks);
 });
 
-router.get('/', (req,res)=>{
-    // res.send('Hola desde task.routes GET');
+//para insertar datos en la DB:
+//Create (C)
+router.post('/', async(req,res) => {
+    // console.log(req.body)
+    const { title, description} = req.body;
+    const tarea = new Task_Model ({title, description});
+    console.log(tarea);
+    await tarea.save();
     res.json({
-        status: 'API funcionando con JSON'
+        status: "Task saved"
+    })
+});
+
+//Para Editar datos en la DB:
+//Update (U)
+//Se necesita primero el id del item en la DB
+router.put('/:id', async(req,res) => {
+    const { title, description } = req.body;
+    const newTask = {title, description};
+    await Task_Model.findByIdAndUpdate(req.params.id, newTask)
+    res.json({
+        status: "Tarea actualizada."
+    });
+
+});
+
+//Para borrar datos de la BD:
+//Delete (D)
+//tambien se necesita el id
+router.delete('/:id', async(req,res) => {
+    await Task_Model.findByIdAndRemove(req.params.id);
+    res.json({
+        status: "Tarea Eliminada"
     });
 });
 
